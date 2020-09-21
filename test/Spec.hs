@@ -42,6 +42,7 @@ basics = describe "basics" $ do
     prop "listSum" (\l -> listSum (fromList l) == sum l)
     prop "listEq" (\l1 l2 -> listEq (fromList l1) (fromList l2) == ((l1 :: [Int]) == l2))
     prop "toList" (\l -> toList (fromList l) == (l :: [Int]))
+    prop "lmap" (\l -> toList (lmap foo (fromList l)) == fmap foo l)
     -- uncomment the following if you wrote it!
     -- prop "ltraverse" (\l -> fmap toList (ltraverse foo (fromList l)) == traverse foo (l :: [Int]))
 
