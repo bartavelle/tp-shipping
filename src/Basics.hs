@@ -1,26 +1,26 @@
 module Basics where
 
--- | Write a functions that adds two Double.
-add :: Double -> Double -> Double
+-- | Write a functions that adds two Int.
+add :: Int -> Int -> Int
 add = undefined
 
--- | Write a functions that divides two Double.
-divide :: Double -> Double -> Double
+-- | Write a functions that divides two Int.
+divide :: Int -> Int -> Int
 divide = undefined
 
--- This is a sum type. A value of type "DoubleResult" can either be
--- a DoubleSuccess containing a Double, or a DoubleFailure.
+-- This is a sum type. A value of type "IntResult" can either be
+-- a IntSuccess containing a Int, or a IntFailure.
 --
 -- This will be used to identify operations that fail (for example, because
 -- of a divide by 0 operation).
-data DoubleResult
-    = DoubleSuccess Double
-    | DoubleFailure
+data IntResult
+    = IntSuccess Int
+    | IntFailure
     deriving (Show, Eq)
 
--- | Rewrite a function that divides two Doubles, but that explicitely
+-- | Rewrite a function that divides two Ints, but that explicitely
 -- fails when it divides by 0, or explicitely succeeds.
-divide' :: Double -> Double -> DoubleResult
+divide' :: Int -> Int -> IntResult
 divide' = undefined
 
 -- | This is a generic (parametric) type. It represents something that can
@@ -31,7 +31,7 @@ data Result a
     deriving (Show, Eq)
 
 -- | Write this function again, but this time using the generic type.
-divide'' :: Double -> Double -> Result Double
+divide'' :: Int -> Int -> Result Int
 divide'' = undefined
 
 -- | Represent the kind of expressions one can compute on a pocket calculator.
@@ -40,33 +40,33 @@ data Operation
     | Sub Operation Operation
     | Mul Operation Operation
     | Div Operation Operation
-    | Value Double
+    | Value Int
     deriving (Show, Eq)
 
 -- | This is (5 * 3.4) + 8
 -- run it in GHCi
-example1 :: Double
-example1 = eval (Add (Mul (Value 5) (Value 3.4)) (Value 8))
+example1 :: Int
+example1 = eval (Add (Mul (Value 5) (Value 3)) (Value 8))
 
 -- | What is this ?
-example2 :: Double
-example2 = eval (Add (Div (Value 5) (Value 3.4)) (Value 0))
+example2 :: Int
+example2 = eval (Div (Mul (Value 5) (Value 3)) (Value 0))
 
 -- | From an operation, compute its value.
-eval :: Operation -> Double
+eval :: Operation -> Int
 eval = undefined
 
 -- | Try it in the REPL with example2!
 -- Now write the correct function:
-eval' :: Operation -> Result Double
+eval' :: Operation -> Result Int
 eval' = undefined
 
 -- | Examples to run in GHCi
-example1' :: Result Double
-example1' = eval' (Add (Mul (Value 5) (Value 3.4)) (Value 8))
+example1' :: Result Int
+example1' = eval' (Add (Mul (Value 5) (Value 3)) (Value 8))
 
-example2' :: Result Double
-example2' = eval' (Add (Div (Value 5) (Value 3.4)) (Value 0))
+example2' :: Result Int
+example2' = eval' (Div (Mul (Value 5) (Value 3)) (Value 0))
 
 -- | A (linked) list is either empty, or contains an element (head) and a list (tail).
 data List a

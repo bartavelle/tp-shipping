@@ -14,24 +14,24 @@ basics :: SpecWith ()
 basics = describe "basics" $ do
   describe "simple operations" $ do
     prop "add" (\a b -> add a b == a + b)
-    prop "divide" (\a b -> b == 0 || divide a b == a / b)
-    prop "divide' /= 0" (\a b -> b == 0 || divide' a b == DoubleSuccess (a / b))
-    prop "divide' == 0" (\a -> divide' a 0 == DoubleFailure)
-    prop "divide'' /= 0" (\a b -> b == 0 || divide'' a b == B.Success (a / b))
+    prop "divide" (\a b -> b == 0 || divide a b == a `div` b)
+    prop "divide' /= 0" (\a b -> b == 0 || divide' a b == IntSuccess (div a b))
+    prop "divide' == 0" (\a -> divide' a 0 == IntFailure)
+    prop "divide'' /= 0" (\a b -> b == 0 || divide'' a b == B.Success (div a b))
     prop "divide'' == 0" (\a -> divide'' a 0 == B.Failure)
   describe "eval" $ do
     prop "Value" (\a -> eval (Value a) == a)
     prop "Add" (\a b -> eval (Add (Value a) (Value b)) == a + b)
     prop "Sub" (\a b -> eval (Sub (Value a) (Value b)) == a - b)
     prop "Mul" (\a b -> eval (Mul (Value a) (Value b)) == a * b)
-    it "test 1" (eval (Add (Mul (Value 5) (Value 3.4)) (Value 8)) `shouldBe` 5*3.4+8)
+    it "test 1" (eval (Add (Mul (Value 5) (Value 3)) (Value 8)) `shouldBe` 5*3+8)
   describe "eval'" $ do
     prop "Value" (\a -> eval' (Value a) == B.Success a)
     prop "Add" (\a b -> eval' (Add (Value a) (Value b)) == B.Success (a + b))
     prop "Sub" (\a b -> eval' (Sub (Value a) (Value b)) == B.Success (a - b))
     prop "Mul" (\a b -> eval' (Mul (Value a) (Value b)) == B.Success (a * b))
-    it "test 1" (eval' (Add (Mul (Value 5) (Value 3.4)) (Value 8)) `shouldBe` B.Success (5*3.4+8))
-    it "test 2" (eval' (Div (Div (Value 5) (Value 3.4)) (Value 0)) `shouldBe` B.Failure)
+    it "test 1" (eval' (Add (Mul (Value 5) (Value 3)) (Value 8)) `shouldBe` B.Success (5*3+8))
+    it "test 2" (eval' (Div (Div (Value 5) (Value 3)) (Value 0)) `shouldBe` B.Failure)
   describe "lists" $ do
     let foo :: Int -> Maybe Char
         foo x
