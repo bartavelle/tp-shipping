@@ -111,7 +111,7 @@ lmap
   -> List b
 lmap = undefined
 
--- | Black magic!
+-- optional assignment
 -- Uncomment the relevant test if you wrote it!
 ltraverse
   :: Applicative f

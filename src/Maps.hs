@@ -85,3 +85,13 @@ intersectionWith
   -> MyMap k c
 intersectionWith = undefined
 
+-- | optional assignment, only for the brave!
+mergeA
+  :: (Eq k, Applicative f)
+  => (k -> a -> f c)  -- when it is only in map 1
+  -> (k -> b -> f c)  -- when it is only in map 2
+  -> (k -> a -> b -> f c) -- when it is in both maps
+  -> MyMap k a -- first map
+  -> MyMap k b -- second map
+  -> f (MyMap k c) -- merged map
+mergeA = undefined
