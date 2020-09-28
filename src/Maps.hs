@@ -63,6 +63,14 @@ lfold :: (v -> a -> a)
       -> a
 lfold = undefined
 
+-- | Same thing, with values
+lfoldWithKeys
+  :: (k -> v -> a -> a)
+  -> a
+  -> MyMap k v
+  -> a
+lfoldWithKeys = undefined
+
 -- | Sum of all the values in the map. Implement it with lfold.
 lsum
   :: MyMap k Integer
@@ -76,7 +84,7 @@ lminimum
   -> Maybe v
 lminimum = undefined
 
--- | Intersection of two maps. You should use lfold.
+-- | Intersection of two maps. You should use lfoldWithKeys.
 intersectionWith
   :: Eq k
   => (a -> b -> c)
