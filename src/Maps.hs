@@ -77,7 +77,7 @@ lsum
   -> Integer
 lsum = undefined
 
--- | Finds the smallest value, if it exists. Implement it with lfold.
+-- | Finds the smallest value, if it exists. Implement it with lfoldWithKeys.
 lminimum
   :: Ord v
   => MyMap k v
