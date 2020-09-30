@@ -35,7 +35,7 @@ shippingSpec = do
     let diff = M.unionWith (+) s1 (fmap negate s2)
     in case decreaseStock s1 s2 of
       Nothing -> any (< 0) diff
-      Just r  -> all (> 0) r && r == diff
+      Just r  -> all (> 0) r && r == M.filter (/= 0) diff
   describe "initialShippingState" $ do
     prop "is today" (\n -> let d = Day n in getDay (initialShippingState d) == d)
     let ini = initialShippingState 23

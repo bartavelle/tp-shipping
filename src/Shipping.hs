@@ -29,14 +29,14 @@ decreaseStock
   -> Maybe Stock -- ^ the updated stock, if there are enough items
 decreaseStock = error "complete the decreaseStock function"
 
--- | create the initial shipping state, with the current day as input.
--- you should update the `ShippingState` type to store this information
-initialShippingState :: Day -> ShippingState
-initialShippingState = error "complete the decreaseStock function"
-
 -- | return the current day from your `ShippingState` type.
+-- you should update the `ShippingState` type to store this information
 getDay :: ShippingState -> Day
 getDay = error "complete the getDay function"
+
+-- | create the initial shipping state, with the current day as input.
+initialShippingState :: Day -> ShippingState
+initialShippingState = error "complete the initialShippingState function"
 
 -- | return the list, in order of arrival, of the identifiers of orders waiting for stock to be replenished
 getWaitingOrders :: ShippingState -> [OrderId]
