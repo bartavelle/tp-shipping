@@ -70,7 +70,7 @@ restock = error "complete the restock function"
 --   * tracking requests can get lost. They must be reissued if no response has been received after 5 days, so that the transporter can pick the order up.
 --   * items that have been shipped can also be lost. After 7 days, the following actions must be performed:
 --       - for standard delivery, you can assume the item has been delivered
---       - for tracked packages, it means it has been lost, and you must send it again (stocks must be decreased again, a new tracking idea must be used, just like a new order)
+--       - for tracked packages, it means it has been lost, and you must send it again (stocks must be decreased again, a new tracking id must be used, just like a new order)
 --       - for dropped packages, if it has been dropped, you can assume it has been delivered. However, if it has not, you must send it again!
 -- The implementation of this function can be greatly simplified by using the Writer monad (that logs the orders) and some form of traversal.
 advanceDay :: Stock -> ShippingState -> (Stock, ShippingState, [OutEvent])
