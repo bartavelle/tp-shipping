@@ -49,11 +49,11 @@ shippingSpec = do
     it "will work when stock is available" $ do
       let (stock', _, events) = order order0 (OrderInformation (M.singleton 1 5) "" Standard) istock istate
       stock' `shouldBe` M.fromList [(1, 5), (2, 5)]
-      events `shouldBe` [Right (ShippingInformation "" order0 Standard)]
+      events `shouldBe` Just (ShippingInformation "" order0 Standard)
     it "will wait when stock is not available" $ do
       let (stock', stt', events) = order order0 (OrderInformation (M.singleton 2 10) "" Standard) istock istate
       stock' `shouldBe` istock
-      events `shouldBe` [Left order0]
+      events `shouldBe` Nothing
       getWaitingOrders stt' `shouldBe` [order0]
     describe "initialShippingState order" $ do
       it "has no waiting orders" $ getWaitingOrders istate `shouldBe` []
@@ -74,7 +74,7 @@ shippingSpec = do
     it "serves waiting orders, scenario 1" $ do
       let nstock = M.singleton 3 10
           (_, stt_wait1, msg_wait1) = order order0 (OrderInformation (M.singleton 3 5) "" Standard) istock istate
-      msg_wait1 `shouldBe` [Left order0]
+      msg_wait1 `shouldBe` Nothing
       let (stock', _, events) = restock istock nstock stt_wait1
       events `shouldBe` [ShippingInformation "" order0 Standard]
       stock' `shouldBe` M.fromList [(1, 10), (2, 5), (3, 5)]
@@ -82,9 +82,9 @@ shippingSpec = do
         (_, stt_wait2, msg_wait2) = order order1 (OrderInformation (M.singleton 2 10) "" Standard) istock stt_wait1
         (_, stt_wait3, msg_wait3) = order order2 (OrderInformation (M.singleton 2 7) "" Standard) istock stt_wait2
     it "sanity testing" $ do
-      msg_wait1 `shouldBe` [Left order0]
-      msg_wait2 `shouldBe` [Left order1]
-      msg_wait3 `shouldBe` [Left order2]
+      msg_wait1 `shouldBe` Nothing
+      msg_wait2 `shouldBe` Nothing
+      msg_wait3 `shouldBe` Nothing
     it "serves waiting orders, scenario 2" $ do
       let (stock', _, events) = restock istock (M.singleton 3 10) stt_wait3
       events `shouldBe` [ShippingInformation "" order0 Standard]

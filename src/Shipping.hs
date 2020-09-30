@@ -44,7 +44,7 @@ order
   -> OrderInformation
   -> Stock -- ^ current stock
   -> ShippingState -- ^ current shipping state
-  -> (Stock, ShippingState, [Either OrderId ShippingInformation]) -- ^ updated stock, shippingstate, and possibly messages
+  -> (Stock, ShippingState, Maybe ShippingInformation) -- ^ updated stock, shippingstate, and possibly messages
 order = error "complete the order function"
 
 -- | return the list, in order of arrival, of the identifiers of orders waiting for stock to be replenished
@@ -94,7 +94,7 @@ handleMessage stock st event =
   case event of
     NewOrder oid oi ->
       let (stock', st', shipping) = order oid oi stock st
-      in  (stock', st', map (either OutofstockMessage Ship) shipping)
+      in  (stock', st',  [maybe (OutofstockMessage oid) Ship shipping])
     Restock nstock ->
       let (stock', st', shippings) = restock stock nstock st
       in  (stock', st', map Ship shippings)
