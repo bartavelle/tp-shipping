@@ -36,15 +36,8 @@ shippingSpec = do
     in case decreaseStock s1 s2 of
       Nothing -> any (< 0) diff
       Just r  -> all (> 0) r && r == M.filter (/= 0) diff
-  describe "initialShippingState" $ do
+  describe "initialShippingState" $
     prop "is today" (\n -> let d = Day n in getDay (initialShippingState d) == d)
-    let ini = initialShippingState 23
-    it "has no waiting orders" $ getWaitingOrders ini `shouldBe` []
-    it "has no orders waiting for a tracking number" $ getWaitingTracking ini `shouldBe` []
-    it "has no orders waiting for pickup" $ getWaitingPickup ini `shouldBe` []
-    it "has no orders in transit" $ getInTransit ini `shouldBe` []
-    it "has no received orders" $ getReceived ini `shouldBe` []
-
   let istate = initialShippingState 0
       order0 = OrderId 0
       order1 = OrderId 1
@@ -62,8 +55,17 @@ shippingSpec = do
       stock' `shouldBe` istock
       events `shouldBe` [Left order0]
       getWaitingOrders stt' `shouldBe` [order0]
+    describe "initialShippingState order" $ do
+      it "has no waiting orders" $ getWaitingOrders istate `shouldBe` []
+      it "has no orders waiting for a tracking number" $ getWaitingTracking istate `shouldBe` []
+      it "has no orders waiting for pickup" $ getWaitingPickup istate `shouldBe` []
+
 
   describe "restock" $ do
+    describe "initialShippingState restock" $ do
+      it "has no orders in transit" $ getInTransit istate `shouldBe` []
+      it "has no received orders" $ getReceived istate `shouldBe` []
+
     it "does nothing in particular when there are no orders waiting for stocks" $ do
       let nstock = M.singleton 3 10
           (stock', _, infos) = restock istock nstock istate

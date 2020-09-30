@@ -38,22 +38,6 @@ getDay = error "complete the getDay function"
 initialShippingState :: Day -> ShippingState
 initialShippingState = error "complete the initialShippingState function"
 
--- | return the list, in order of arrival, of the identifiers of orders waiting for stock to be replenished
-getWaitingOrders :: ShippingState -> [OrderId]
-getWaitingOrders = error "complete the getWaitingOrders function"
-
-getWaitingTracking :: ShippingState -> [(OrderId, Day)]
-getWaitingTracking = error "complete the getWaitingTracking function"
-
-getWaitingPickup :: ShippingState -> [(OrderId, Day)]
-getWaitingPickup = error "complete the getWaitingPickup function"
-
-getReceived :: ShippingState -> [(OrderId, Day)]
-getReceived = error "complete the getReceived function"
-
-getInTransit :: ShippingState -> [(OrderId, Day)]
-getInTransit = error "complete the getInTransit function"
-
 -- | handle the order message
 order
   :: OrderId
@@ -62,6 +46,13 @@ order
   -> ShippingState -- ^ current shipping state
   -> (Stock, ShippingState, [Either OrderId ShippingInformation]) -- ^ updated stock, shippingstate, and possibly messages
 order = error "complete the order function"
+
+-- | return the list, in order of arrival, of the identifiers of orders waiting for stock to be replenished
+getWaitingOrders :: ShippingState -> [OrderId]
+getWaitingOrders = error "complete the getWaitingOrders function"
+
+getWaitingTracking :: ShippingState -> [(OrderId, Day)]
+getWaitingTracking = error "complete the getWaitingTracking function"
 
 -- | handle new stock being received
 -- do not forget the requests must be served *in order*
@@ -84,6 +75,15 @@ restock = error "complete the restock function"
 -- The implementation of this function can be greatly simplified by using the Writer monad (that logs the orders) and some form of traversal.
 advanceDay :: Stock -> ShippingState -> (Stock, ShippingState, [OutEvent])
 advanceDay = error "complete the advanceDay function"
+
+getWaitingPickup :: ShippingState -> [(OrderId, Day)]
+getWaitingPickup = error "complete the getWaitingPickup function"
+
+getReceived :: ShippingState -> [(OrderId, Day)]
+getReceived = error "complete the getReceived function"
+
+getInTransit :: ShippingState -> [(OrderId, Day)]
+getInTransit = error "complete the getInTransit function"
 
 handleMessage
   :: Stock -- ^ initial stock before message handling
