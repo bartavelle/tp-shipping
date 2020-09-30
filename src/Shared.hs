@@ -57,16 +57,20 @@ data OutEvent
   | InconsistentState String -- ^ something is wrong with an InEvent
   deriving (Show, Eq)
 
+data Destination
+  = Destination
+  { _address :: String
+  , _method  :: DeliveryType
+  } deriving (Show, Eq)
+
 data OrderInformation
   = OrderInformation
-  { _orderedItems    :: Stock -- ^ items that must be provided
-  , _deliveryAddress :: String -- ^ where the items are to be sent
-  , _deliveryMethod  :: DeliveryType
+  { _orderStock :: Stock
+  , _orderDest  :: Destination
   } deriving (Show, Eq)
 
 data ShippingInformation
   = ShippingInformation
-  { _destination  :: String -- ^ where the items are to be sent
-  , _orderId      :: OrderId -- ^ internal identifier for this order
-  , _deliveryType :: DeliveryType -- ^ type of delivery
+  { _orderId      :: OrderId -- ^ internal identifier for this order
+  , _shippingDest :: Destination
   } deriving (Show, Eq)

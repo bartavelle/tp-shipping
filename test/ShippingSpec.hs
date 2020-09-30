@@ -21,6 +21,7 @@ genStock = do
 shippingSpec :: Spec
 shippingSpec = do
   let qstock = M.findWithDefault 0
+      defDest = Destination "destination" Standard
   describe "increaseStock" $ do
     prop "additivity" $ forAll genStocks $ \(s1, s2) ->
       let s' = increaseStock s1 s2
@@ -47,11 +48,11 @@ shippingSpec = do
 
   describe "order" $ do
     it "will work when stock is available" $ do
-      let (stock', _, events) = order order0 (OrderInformation (M.singleton 1 5) "" Standard) istock istate
+      let (stock', _, events) = order order0 (OrderInformation (M.singleton 1 5) defDest) istock istate
       stock' `shouldBe` M.fromList [(1, 5), (2, 5)]
-      events `shouldBe` Just (ShippingInformation "" order0 Standard)
+      events `shouldBe` Just (ShippingInformation order0 defDest)
     it "will wait when stock is not available" $ do
-      let (stock', stt', events) = order order0 (OrderInformation (M.singleton 2 10) "" Standard) istock istate
+      let (stock', stt', events) = order order0 (OrderInformation (M.singleton 2 10) defDest) istock istate
       stock' `shouldBe` istock
       events `shouldBe` Nothing
       getWaitingOrders stt' `shouldBe` [order0]
@@ -73,43 +74,43 @@ shippingSpec = do
       stock' `shouldBe` increaseStock istock nstock
     it "serves waiting orders, scenario 1" $ do
       let nstock = M.singleton 3 10
-          (_, stt_wait1, msg_wait1) = order order0 (OrderInformation (M.singleton 3 5) "" Standard) istock istate
+          (_, stt_wait1, msg_wait1) = order order0 (OrderInformation (M.singleton 3 5) defDest) istock istate
       msg_wait1 `shouldBe` Nothing
       let (stock', _, events) = restock istock nstock stt_wait1
-      events `shouldBe` [ShippingInformation "" order0 Standard]
+      events `shouldBe` [ShippingInformation order0 defDest]
       stock' `shouldBe` M.fromList [(1, 10), (2, 5), (3, 5)]
-    let (_, stt_wait1, msg_wait1) = order order0 (OrderInformation (M.singleton 3 5) "" Standard) istock istate
-        (_, stt_wait2, msg_wait2) = order order1 (OrderInformation (M.singleton 2 10) "" Standard) istock stt_wait1
-        (_, stt_wait3, msg_wait3) = order order2 (OrderInformation (M.singleton 2 7) "" Standard) istock stt_wait2
+    let (_, stt_wait1, msg_wait1) = order order0 (OrderInformation (M.singleton 3 5) defDest) istock istate
+        (_, stt_wait2, msg_wait2) = order order1 (OrderInformation (M.singleton 2 10) defDest) istock stt_wait1
+        (_, stt_wait3, msg_wait3) = order order2 (OrderInformation (M.singleton 2 7) defDest) istock stt_wait2
     it "sanity testing" $ do
       msg_wait1 `shouldBe` Nothing
       msg_wait2 `shouldBe` Nothing
       msg_wait3 `shouldBe` Nothing
     it "serves waiting orders, scenario 2" $ do
       let (stock', _, events) = restock istock (M.singleton 3 10) stt_wait3
-      events `shouldBe` [ShippingInformation "" order0 Standard]
+      events `shouldBe` [ShippingInformation order0 defDest]
       stock' `shouldBe` M.fromList [(1, 10), (2, 5), (3, 5)]
     it "serves waiting orders, scenario 3" $ do
       let (stock', _, events) = restock istock (M.singleton 2 20) stt_wait3
-      events `shouldBe` [ShippingInformation "" order1 Standard, ShippingInformation "" order2 Standard]
+      events `shouldBe` [ShippingInformation order1 defDest, ShippingInformation order2 defDest]
       stock' `shouldBe` M.fromList [(1, 10), (2, 8)]
     it "serves waiting orders, scenario 4" $ do
       let (stock', _, events) = restock istock (M.singleton 2 2) stt_wait3
-      events `shouldBe` [ShippingInformation "" order2 Standard]
+      events `shouldBe` [ShippingInformation order2 defDest]
       stock' `shouldBe` M.fromList [(1, 10)]
     it "serves waiting orders, scenario 5" $ do
       let (stock', _, events) = restock istock (M.singleton 2 5) stt_wait3
-      events `shouldBe` [ShippingInformation "" order1 Standard]
+      events `shouldBe` [ShippingInformation order1 defDest]
       stock' `shouldBe` M.fromList [(1, 10)]
 
   describe "full scenarios" $ do
     describe "standard order" $ do
-      let (stock_1, stt_1, msg_1) = handleMessages istock istate [NewOrder order0 (OrderInformation (M.singleton 2 3) "foo" Standard), NewDay]
+      let (stock_1, stt_1, msg_1) = handleMessages istock istate [NewOrder order0 (OrderInformation (M.singleton 2 3) defDest), NewDay]
       let (stock_2, stt_2, msg_2) = handleMessages stock_1 stt_1 [ParcelHandled order0 trackingA]
       let (stock_3, stt_3, msg_3) = handleMessages stock_2 stt_2 (replicate 6 NewDay)
       let (_      , stt_4, msg_4) = handleMessages stock_3 stt_3 [NewDay]
       it "initial order" $ do
-        msg_1 `shouldBe` [Ship (ShippingInformation "foo" order0 Standard)]
+        msg_1 `shouldBe` [Ship (ShippingInformation order0 defDest)]
         getWaitingTracking stt_1 `shouldBe` [(order0, 0)]
         getDay stt_1 `shouldBe` 1
       it "tracking order received" $ do
@@ -125,12 +126,12 @@ shippingSpec = do
         getInTransit stt_4 `shouldBe` []
         getDay stt_4 `shouldBe` 8
     describe "tracked order" $ do
-      let (stock_1, stt_1, msg_1) = handleMessages istock istate [NewOrder order0 (OrderInformation (M.singleton 2 3) "foo" Verified), NewDay]
+      let (stock_1, stt_1, msg_1) = handleMessages istock istate [NewOrder order0 (OrderInformation (M.singleton 2 3) (Destination "foo" Verified)), NewDay]
       let (stock_2, stt_2, msg_2) = handleMessages stock_1 stt_1 [ParcelHandled order0 trackingA]
       let (stock_3, stt_3, msg_3) = handleMessages stock_2 stt_2 (replicate 8 NewDay)
       let (_      , stt_4, msg_4) = handleMessages stock_3 stt_3 [NewDay]
       it "initial order" $ do
-        msg_1 `shouldBe` [Ship (ShippingInformation "foo" order0 Verified)]
+        msg_1 `shouldBe` [Ship (ShippingInformation order0 (Destination "foo" Verified))]
         getWaitingTracking stt_1 `shouldBe` [(order0, 0)]
         getDay stt_1 `shouldBe` 1
       it "tracking order received" $ do

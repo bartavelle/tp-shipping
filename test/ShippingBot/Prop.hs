@@ -82,7 +82,7 @@ queueTODO delay stuff = do
 handleOutevents :: OutEvent -> BOT ()
 handleOutevents event
   = case event of
-      Ship (ShippingInformation _ orderid deliverytype) -> do
+      Ship (ShippingInformation orderid (Destination _ deliverytype)) -> do
         bot <- getBot "Ship" orderid
         case bot ^. behaviour of
           Ordered -> do
@@ -106,7 +106,7 @@ runTodo td = case td of
       case bstate of
         OrderNow -> do
           botsmap . ix oid . behaviour .= Ordered
-          pure [NewOrder oid (OrderInformation orderContent "xx" dtype)]
+          pure [NewOrder oid (OrderInformation orderContent (Destination "xx" dtype))]
         Waiting _ ->
           case compl of
             NoComplication -> do
