@@ -1,8 +1,8 @@
-module Shipping (module Shared, module Shipping) where
+module Shipping (module ShippingShared, module Shipping) where
 
 import           Data.List       (foldl')
 import qualified Data.Map.Strict as M
-import           Shared
+import           ShippingShared
 
 -- the following imports might be useful at some point for advanced users
 -- import           Control.Monad.Writer.Strict

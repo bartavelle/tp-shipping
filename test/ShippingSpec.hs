@@ -129,7 +129,7 @@ shippingSpec = do
       let (stock_1, stt_1, msg_1) = handleMessages istock istate [NewOrder order0 (OrderInformation (M.singleton 2 3) (Destination "foo" Verified)), NewDay]
       let (stock_2, stt_2, msg_2) = handleMessages stock_1 stt_1 [ParcelHandled order0 trackingA]
       let (stock_3, stt_3, msg_3) = handleMessages stock_2 stt_2 (replicate 8 NewDay)
-      let (_      , stt_4, msg_4) = handleMessages stock_3 stt_3 [NewDay]
+      let (_      , _    , _    ) = handleMessages stock_3 stt_3 [NewDay]
       it "initial order" $ do
         msg_1 `shouldBe` [Ship (ShippingInformation order0 (Destination "foo" Verified))]
         getWaitingTracking stt_1 `shouldBe` [(order0, 0)]
@@ -138,6 +138,10 @@ shippingSpec = do
         msg_2 `shouldBe` []
         getWaitingTracking stt_2 `shouldBe` []
         getInTransit stt_2 `shouldBe` [(order0, 1)]
+      it "is considered not received after 6 days" $ do
+        msg_3 `shouldBe` []
+        getInTransit stt_3 `shouldBe` [(order0, 1)]
+        getDay stt_3 `shouldBe` 7
 
 
 
