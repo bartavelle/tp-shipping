@@ -3,6 +3,7 @@ module ShippingBot.Prop where
 import           Shipping
 import           ShippingBot.Definition
 
+import           Control.Monad              (void, when)
 import           Control.Monad.IO.Class     (liftIO)
 import           Control.Monad.State.Strict (StateT, evalStateT, get)
 import qualified Data.Map.Strict            as M
@@ -12,6 +13,9 @@ import           System.Random              (Random (randomIO, randomRIO))
 import           Test.Hspec                 (Spec, shouldBe)
 import           Test.Hspec.QuickCheck      (prop)
 import           Test.QuickCheck            (forAll)
+
+debugMode :: Bool
+debugMode = False
 
 propBot :: String -> [(DeliveryType, Complication)] -> Spec
 propBot desc bots = prop desc $ forAll (newState bots) (evalStateT simulate)
@@ -28,8 +32,25 @@ getTracking = do
       usedTracking %= S.insert roll
       pure roll
 
+prettyState :: State -> String
+prettyState stt = unlines $
+  (show (stt ^. stoday) ++ " stock:" ++ compactStocks (stt ^. inventory))
+    :  botsdesc
+    ++ todos
+    ++ prettyShippingState (stt ^. shippingState)
+  where
+    botsdesc = " BOTS:" : map mkBot (M.toList (stt ^. botsmap))
+    mkBot (OrderId oid, bt) = " * " ++ show oid ++ " " ++ show bt
+    todos = " TODO:" : concatMap mkTodo (M.toList (stt ^. todo))
+    mkTodo (Day d, things) = (" [day " ++ show d ++ "]") : map mkThings things
+    mkThings t = case t of
+      WakeUpBot (OrderId i)                         -> " * wakeup " ++ show i
+      RestockStuff inv                              -> " * restock " ++ compactStocks inv
+      GiveTrackingId (OrderId oid) (TrackingId tid) -> " * trackingid oid=" ++ show oid ++ " tid=" ++ show tid
+
 simulate :: BOT ()
 simulate = do
+  when debugMode (get >>= liftIO . putStr . prettyState)
   today <- use stoday
   todo_today <- use (todo . ix today)
   tosend <- (++[NewDay]) . concat <$> mapM runTodo todo_today
@@ -52,8 +73,8 @@ finalCheck = do
   let checkBot orderid bot =
         case _behaviour bot of
           Received _ -> pure ()
-          _          -> fail ("Invalid state for bot " ++ show orderid ++ ": " ++ show bot)
-  use botsmap >>= M.traverseWithKey checkBot
+          _          -> fail ("finalCheck failed for bot " ++ show orderid ++ ": " ++ show bot)
+  void (use botsmap >>= M.traverseWithKey checkBot)
   stt' <- get
   let (_, sstate, outevents) = handleMessages (stt' ^. inventory) (stt' ^. shippingState) (replicate 8 NewDay)
   liftIO $ do
@@ -84,12 +105,15 @@ handleOutevents event
   = case event of
       Ship (ShippingInformation orderid (Destination _ deliverytype)) -> do
         bot <- getBot "Ship" orderid
+        let giveTrackingId = do
+              liftIO (bot ^. deliveryType `shouldBe` deliverytype)
+              tracking <- getTracking
+              delay <- rollDelay (1, 3)
+              queueTODO delay (GiveTrackingId orderid tracking)
         case bot ^. behaviour of
-          Ordered -> do
-            liftIO (bot ^. deliveryType `shouldBe` deliverytype)
-            tracking <- getTracking
-            delay <- rollDelay (1, 3)
-            queueTODO delay (GiveTrackingId orderid tracking)
+          Ordered -> giveTrackingId
+          AwaitingLostParcel -> giveTrackingId
+          Waiting _ -> giveTrackingId
           b -> fail ("Spurious " ++ show event ++ ", bot is in state " ++ show b)
       OutofstockMessage orderid -> do
         bot <- getBot "OutofstockMessage" orderid
@@ -107,17 +131,23 @@ runTodo td = case td of
         OrderNow -> do
           botsmap . ix oid . behaviour .= Ordered
           pure [NewOrder oid (OrderInformation orderContent (Destination "xx" dtype))]
-        Waiting _ ->
+        Waiting tid ->
           case compl of
             NoComplication -> do
-              -- packet received, forget about it
               botsmap %= M.delete oid
+              pure [ParcelDelivered tid | dtype /= Standard]
+            ShippingLost -> do
+              botsmap . ix oid . complication .= NoComplication
+              botsmap . ix oid . behaviour .= AwaitingLostParcel
+              queueTODO 1 (WakeUpBot oid)
               pure []
-            _ -> fail ("Unhandled complication " ++ show compl)
-        _ -> fail ("Unhandled " ++ show bstate)
+        AwaitingLostParcel -> pure []
+        _ -> fail ("Spurious bstate: " ++ show bstate)
   GiveTrackingId oid tid -> do
-    _ <- getBot "GiveTrackingId" oid
-    delay <- rollDelay (1, 4)
+    bot <- getBot "GiveTrackingId" oid
+    delay <- case bot ^. complication of
+      NoComplication -> rollDelay (1, 4)
+      _ -> pure 7
     queueTODO delay (WakeUpBot oid)
     botsmap . ix oid . behaviour .= Waiting tid
     pure [ParcelHandled oid tid]

@@ -27,7 +27,6 @@ newtype TrackingId =
 data DeliveryType
   = Standard -- ^ standard delivery, will not be acknowledged
   | Verified -- ^ delivery will be acknowledged with a ParcelDelivered message
-  | MailDrop -- ^ delivery will be acknowledged with a ParcelPickedup message
   deriving (Show, Eq)
 
 -- | amount of items in stock
@@ -40,8 +39,6 @@ data InEvent
   | ParcelHandled OrderId TrackingId -- ^ the shipping company has received the order and is ready to ship it
   | ParcelReturned TrackingId  -- ^ parcel could not be delivered, and has been sent back to the warehouse
   | ParcelDelivered TrackingId -- ^ a verified parcel has been delivered, or a maildrop parcel is waiting to be picked up
-  | ParcelPickedUp TrackingId -- ^ a maildrop parcel has been picked up
-  | Resend OrderId -- ^ customer support tells you an order must be sent again
   | NewDay -- ^ a new day has come
   | Restock Stock -- ^ stock has been received
   deriving (Show, Eq)
@@ -74,3 +71,7 @@ data ShippingInformation
   { _orderId      :: OrderId -- ^ internal identifier for this order
   , _shippingDest :: Destination
   } deriving (Show, Eq)
+
+-- | a debug utility function
+compactStocks :: Stock -> String
+compactStocks = show . map (\(ItemId i, q) -> (i, q)) . M.toList

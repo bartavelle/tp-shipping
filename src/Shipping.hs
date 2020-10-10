@@ -15,6 +15,10 @@ data ShippingState
     { _stuff :: String
     } deriving (Show)
 
+-- | Customize this if you want nicer debug messages
+prettyShippingState :: ShippingState -> [String]
+prettyShippingState s = [show s]
+
 -- | Increase the stock
 -- you should be able to use a function from Data.Map.Strict directly
 increaseStock :: Stock -> Stock -> Stock

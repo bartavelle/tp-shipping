@@ -125,11 +125,11 @@ shippingSpec = do
         msg_4 `shouldBe` []
         getInTransit stt_4 `shouldBe` []
         getDay stt_4 `shouldBe` 8
-    describe "tracked order" $ do
+    describe "tracked order, lost, out of stock" $ do
       let (stock_1, stt_1, msg_1) = handleMessages istock istate [NewOrder order0 (OrderInformation (M.singleton 2 3) (Destination "foo" Verified)), NewDay]
       let (stock_2, stt_2, msg_2) = handleMessages stock_1 stt_1 [ParcelHandled order0 trackingA]
-      let (stock_3, stt_3, msg_3) = handleMessages stock_2 stt_2 (replicate 8 NewDay)
-      let (_      , _    , _    ) = handleMessages stock_3 stt_3 [NewDay]
+      let (stock_3, stt_3, msg_3) = handleMessages stock_2 stt_2 (replicate 6 NewDay)
+      let (_      , _    , msg_4) = handleMessages stock_3 stt_3 [NewDay]
       it "initial order" $ do
         msg_1 `shouldBe` [Ship (ShippingInformation order0 (Destination "foo" Verified))]
         getWaitingTracking stt_1 `shouldBe` [(order0, 0)]
@@ -139,14 +139,44 @@ shippingSpec = do
         getWaitingTracking stt_2 `shouldBe` []
         getInTransit stt_2 `shouldBe` [(order0, 1)]
       it "is considered not received after 6 days" $ do
+        getDay stt_3 `shouldBe` 7
         msg_3 `shouldBe` []
         getInTransit stt_3 `shouldBe` [(order0, 1)]
-        getDay stt_3 `shouldBe` 7
-
-
+      it "is considered lost after 7 days, should appear as out of stocks" $ do
+        msg_4 `shouldBe` [OutofstockMessage order0]
+    describe "tracked order, lost, in stock" $ do
+      let (stock_1, stt_1, msg_1) = handleMessages istock istate
+            [ NewOrder order0 (OrderInformation (M.singleton 1 3) (Destination "foo" Verified))
+            , NewDay
+            , ParcelHandled order0 trackingA
+            , NewDay , NewDay , NewDay , NewDay , NewDay , NewDay
+            ]
+      let (stock_2, stt_2, msg_2) = handleMessages stock_1 stt_1 [NewDay]
+          (stock_3, stt_3, msg_3) = handleMessages stock_2 stt_2 [ParcelHandled order0 trackingA]
+          (_      , stt_4, msg_4) = handleMessages stock_3 stt_3 [NewDay, NewDay, ParcelDelivered trackingA]
+      it "has been seven days" $ getDay stt_1 `shouldBe` 7
+      -- two messages have been sent
+      it "has been sent once" $ msg_1 `shouldBe` [Ship (ShippingInformation order0 (Destination "foo" Verified))]
+      it "was in transit" $ getInTransit stt_1 `shouldBe` [(order0, 1)]
+      it "has been sent again" $ msg_2 `shouldBe` [Ship (ShippingInformation order0 (Destination "foo" Verified))]
+      it "it is waiting for a tracking id" $ do
+        getInTransit stt_2 `shouldBe` []
+        getWaitingTracking stt_2 `shouldBe` [(order0, 8)]
+      it "is in transit after being resent" $ do
+        msg_3 `shouldBe` []
+        getInTransit stt_3 `shouldBe` [(order0, 8)]
+      it "has been received" $ do
+        msg_4 `shouldBe` []
+        getInTransit stt_4 `shouldBe` []
 
   describe "simulations" $ do
     propBot "no bot" []
     propBot "simple bot, standard delivery" [(Standard, NoComplication)]
     propBot "simple bot, verified delivery" [(Verified, NoComplication)]
-    propBot "simple bot, maildrop" [(MailDrop, NoComplication)]
+    propBot "simple bot, verified delivery" [(Verified, NoComplication)]
+    propBot "lost parcel, verified delivery" [(Verified, ShippingLost)]
+    propBot "all at once"
+      [ (Standard, NoComplication)
+      , (Verified, NoComplication)
+      , (Verified, ShippingLost)
+      ]

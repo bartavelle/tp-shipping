@@ -22,12 +22,12 @@ data BotState
   | Ordered
   | Waiting TrackingId
   | Received TrackingId
-  deriving Show
+  | AwaitingLostParcel
+  deriving (Show, Eq)
 
 data Complication
   = NoComplication
   | ShippingLost
-  | Refused
   deriving Show
 
 data TODO
