@@ -32,6 +32,7 @@ basics = describe "basics" $ do
     prop "Mul" (\a b -> eval' (Mul (Value a) (Value b)) == B.Success (a * b))
     it "test 1" (eval' (Add (Mul (Value 5) (Value 3)) (Value 8)) `shouldBe` B.Success (5*3+8))
     it "test 2" (eval' (Div (Div (Value 5) (Value 3)) (Value 0)) `shouldBe` B.Failure)
+    it "test 3" (eval' (Div (Div (Value 5) (Value 0)) (Value 1)) `shouldBe` B.Failure)
   describe "lists" $ do
     let foo :: Int -> Maybe Char
         foo x
