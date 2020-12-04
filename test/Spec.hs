@@ -39,6 +39,8 @@ basics = describe "basics" $ do
           | x <  0 = Just 'a'
           | x >  0 = Just 'b'
           | otherwise = Nothing
+    it "listHead1" (listHead (Cons 1 (Cons 2 Empty)) `shouldBe` Success (1 :: Int))
+    it "listHead2" (listHead (Empty :: List Int) `shouldBe` Failure)
     prop "foo" (foo 3 == Just 'b')
     prop "listSum" (\l -> listSum (fromList l) == sum l)
     prop "listEq" (\l1 l2 -> listEq (fromList l1) (fromList l2) == ((l1 :: [Int]) == l2))
