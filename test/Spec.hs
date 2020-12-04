@@ -61,6 +61,8 @@ mapTests = describe "MyMap tests" $ do
         let mp = M.fromList lst :: M.Map Int String
             lst' = M.toList mp
         in  M.member k mp || M.fromList (SM.linsert k v lst') == M.insert k v mp
+    it "insert overwrite" $
+      SM.linsert (3 :: Int) "test" (SM.lsingleton 3 "bad") `shouldBe` SM.lsingleton 3 "test"
     describe "delete" $
       prop "prop" $ \k lst ->
         let mp = M.fromList lst :: M.Map Int String
@@ -83,6 +85,10 @@ mapTests = describe "MyMap tests" $ do
         let mp = M.fromList lst :: M.Map Int String
             lst' = M.toList mp
         in  lst' == sort (SM.fromList lst)
+    describe "lfold (bonus)" $
+      prop "lfold" $ \lst ->
+        let mp = SM.fromList lst :: SM.MyMap Int String
+        in  SM.lfold (++) "" mp == foldr (\e c -> snd e ++ c) "" mp
     describe "lsum" $
       prop "prop" $ \lst ->
         let mp = M.fromList lst :: M.Map String Integer
