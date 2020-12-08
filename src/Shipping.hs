@@ -112,4 +112,4 @@ handleMessages
   -> (Stock, ShippingState, [OutEvent])
 handleMessages stock state = foldl' run1 (stock, state, [])
   where
-    run1 (curstock, curstate, curout) = fmap (curout ++) . handleMessage curstock curstate
+    run1 (curstock, curstate, curout) = (\(a, b, c) -> (a, b, curout ++ c)) . handleMessage curstock curstate
