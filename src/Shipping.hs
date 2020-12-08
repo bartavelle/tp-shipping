@@ -4,6 +4,35 @@ import           Data.List       (foldl')
 import qualified Data.Map.Strict as M
 import           ShippingShared
 
+{-
+ record Syntax:
+
+ * definition
+
+ data Record
+    = Record
+    { _element1 :: Int
+    , _element2 :: String
+    } deriving (Show)
+
+ * creation
+
+ foo :: Record
+ foo = Record 34 "ddddd"
+
+ * matching
+
+getElement1 :: Record -> Int
+getElement1 r =
+  case r of
+    Record x _ -> x
+
+ * modification
+
+setElements :: Int -> String -> Record -> Int
+setElements x s r = r { _element1 = x, _element2 = s }
+-}
+
 -- the following imports might be useful at some point for advanced users
 -- import           Control.Monad.Writer.Strict
 -- import           Data.Maybe                  (mapMaybe)
@@ -13,6 +42,7 @@ import           ShippingShared
 data ShippingState
     = ShippingState
     { _stuff :: String
+    , _machin :: [Int]
     } deriving (Show)
 
 -- | Customize this if you want nicer debug messages
