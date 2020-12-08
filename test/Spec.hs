@@ -118,7 +118,27 @@ mapTests = describe "MyMap tests" $ do
             lst2' = M.toList mp2
         in  M.fromList (SM.intersectionWith replicate lst2' lst1') ==
             M.merge M.dropMissing M.dropMissing (M.zipWithMatched (const replicate)) mp2 mp1
-
+    -- describe "mergeA" $ do
+    --   let m1 = [(1, "lol"), (2, "lal")] :: SM.MyMap Int String
+    --       m2 = [(1, 3), (3, 1)] :: SM.MyMap Int Int
+    --   it "simple intersection" $
+    --     SM.mergeA (\_ v1 -> Just [v1])
+    --               (\_ _ -> Just [])
+    --               (\_ k1 k2 -> Just (replicate k2 k1))
+    --               m1
+    --               m2 `shouldBe` Just [(1, replicate 3 "lol"), (2, ["lal"]), (3, [])]
+    --   it "destructive intersection A" $
+    --     SM.mergeA (\_ v1 -> Just [v1])
+    --               (\_ _ -> Nothing)
+    --               (\_ k1 k2 -> Just (replicate k2 k1))
+    --               m1
+    --               m2 `shouldBe` Nothing
+    --   it "destructive intersection B" $
+    --     SM.mergeA (\_ v1 -> Just [v1])
+    --               (\_ _ -> Nothing)
+    --               (\_ k1 k2 -> Just (replicate k2 k1))
+    --               m1
+    --               [(1, 3)] `shouldBe` Just [(1, replicate 3 "lol"), (2, ["lal"])]
 
 main :: IO ()
 main = hspec $ do
