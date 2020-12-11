@@ -74,13 +74,10 @@ shippingSpec = do
     describe "initialShippingState order" $ do
       it "has no waiting orders" $ getWaitingOrders istate `shouldBe` []
       it "has no orders waiting for a tracking number" $ getWaitingTracking istate `shouldBe` []
-      it "has no orders waiting for pickup" $ getWaitingPickup istate `shouldBe` []
-
 
   describe "restock" $ do
     describe "initialShippingState restock" $ do
       it "has no orders in transit" $ getInTransit istate `shouldBe` []
-      it "has no received orders" $ getReceived istate `shouldBe` []
 
     it "does nothing in particular when there are no orders waiting for stocks" $ do
       let nstock = M.singleton 3 10

@@ -114,12 +114,6 @@ restock = error "complete the restock function"
 advanceDay :: Stock -> ShippingState -> (Stock, ShippingState, [OutEvent])
 advanceDay = error "complete the advanceDay function"
 
-getWaitingPickup :: ShippingState -> [(OrderId, Day)]
-getWaitingPickup = error "complete the getWaitingPickup function"
-
-getReceived :: ShippingState -> [(OrderId, Day)]
-getReceived = error "complete the getReceived function"
-
 getInTransit :: ShippingState -> [(OrderId, Day)]
 getInTransit = error "complete the getInTransit function"
 

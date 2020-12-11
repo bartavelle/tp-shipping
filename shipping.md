@@ -128,3 +128,19 @@ On receiving the `NewDay` message, several things must be checked:
 
    - for "standard delivery" items, assume they have been received, just like if you received the `ParcelDelivered` message
    - for "verified delivery" items, you must act as if you received a new `Order` message
+
+## Parcel lifecycle
+
+Orders / parcels can be in the following states:
+
+ * an order has been received but there is not stock (waiting for stocks)
+ * an order had been received, and the package is waiting for a tricking id
+ * the package is being delivered
+
+These three states map to the following functions:
+
+```haskell 
+getWaitingOrders :: ShippingState -> [OrderId]
+getWaitingTracking :: ShippingState -> [(OrderId, Day)]
+getInTransit :: ShippingState -> [(OrderId, Day)]
+```
