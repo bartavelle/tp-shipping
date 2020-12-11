@@ -53,6 +53,11 @@ prettyShippingState s = [show s]
 -- you should be able to use a function from Data.Map.Strict directly
 increaseStock :: Stock -> Stock -> Stock
 increaseStock = error "complete the increaseStock function"
+{-
+decreaseStock (M.singleton (ItemId 5) 3) (M.singleton (ItemId 5) 2) = Just (M.singleton (ItemId 5) 1)
+decreaseStock (M.singleton (ItemId 5) 3) (M.singleton (ItemId 5) 3) = Just M.empty
+decreaseStock (M.singleton (ItemId 5) 3) (M.singleton (ItemId 5) 4) = Nothing
+-}
 
 -- | Remove items from stock, if there are enough
 -- if you are new to pure functional programming, try transforming the "items to be removed" in to a list, and using a helper function to iterate through that list
@@ -105,7 +110,6 @@ restock = error "complete the restock function"
 --   * items that have been shipped can also be lost. After 7 days, the following actions must be performed:
 --       - for standard delivery, you can assume the item has been delivered
 --       - for tracked packages, it means it has been lost, and you must send it again (stocks must be decreased again, a new tracking id must be used, just like a new order)
---       - for dropped packages, if it has been dropped, you can assume it has been delivered. However, if it has not, you must send it again!
 -- The implementation of this function can be greatly simplified by using the Writer monad (that logs the orders) and some form of traversal.
 advanceDay :: Stock -> ShippingState -> (Stock, ShippingState, [OutEvent])
 advanceDay = error "complete the advanceDay function"
