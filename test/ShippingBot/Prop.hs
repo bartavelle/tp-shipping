@@ -81,8 +81,6 @@ finalCheck = do
     outevents `shouldBe` []
     getWaitingOrders sstate `shouldBe` []
     getWaitingTracking sstate `shouldBe` []
-    getWaitingPickup sstate `shouldBe` []
-    getReceived sstate `shouldBe` []
     getInTransit sstate `shouldBe` []
 
 getBot :: String -> OrderId -> BOT Bot
