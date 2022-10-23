@@ -9,7 +9,7 @@ import           Control.Monad.State.Strict (StateT, evalStateT, get)
 import qualified Data.Map.Strict            as M
 import qualified Data.Set                   as S
 import           Lens.Micro.Platform
-import           System.Random              (Random (randomIO, randomRIO))
+import           System.Random              (randomIO, randomRIO)
 import           Test.Hspec                 (Spec, shouldBe)
 import           Test.Hspec.QuickCheck      (prop)
 import           Test.QuickCheck            (forAll)
